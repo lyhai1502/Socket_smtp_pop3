@@ -10,12 +10,12 @@ import Config.Static;
 
 public class SendMail {
 
-    String[] recipients = {"lyhai1502@gmail.com", "lyhaiclone@gmail.com"};
-    String[] ccRecipients = { "godzerohai1222@gmail.com" };
-    String[] bccRecipients = { "godzerohai1221@gmail.com", "lyhai1502.work@gmail.com" }; // Add BCC recipient
-    String subject = "Hello";
-    String body = "Ly hai";
-    String[] attachmentFilePaths = { "/Users/vanlyhai/Downloads/attachment2.pdf", "/Users/vanlyhai/Downloads/attachment1.txt" }; // Replace with the actual file path
+    String[] recipients = {};
+    String[] ccRecipients = {};
+    String[] bccRecipients = {}; // Add BCC recipient
+    String subject = "";
+    String body = "";
+    String[] attachmentFilePaths = {}; // Replace with the actual file path
 
     Socket socket;
     BufferedReader reader;
@@ -27,10 +27,11 @@ public class SendMail {
         reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
-    
-    public SendMail(String[] ccRecipients, String[] bccRecipients, String subject, String body,
+
+   
+    public SendMail(String[] recipients, String[] ccRecipients, String[] bccRecipients, String subject, String body,
             String[] attachmentFilePaths) {
-        
+        this.recipients = recipients;
         this.ccRecipients = ccRecipients;
         this.bccRecipients = bccRecipients;
         this.subject = subject;
@@ -38,31 +39,28 @@ public class SendMail {
         this.attachmentFilePaths = attachmentFilePaths;
 
     }
-   
-            
 
     public void sendMail() {
         try {
-
             // Read the server's response
             String response = reader.readLine();
             System.out.println("Server: " + response);
 
             // Send the HELO command
-            writer.write("HELO " + Static.SERVER + "\r\n");
+            writer.write("EHLO " + "[" + Static.SERVER + "]" + "\r\n");
             writer.flush();
             response = reader.readLine();
             System.out.println("Server: " + response);
 
             // Send the MAIL FROM command
-            writer.write("MAIL FROM: <" + Static.SENDER + ">\r\n");
+            writer.write("MAIL FROM:<" + Static.SENDER + ">\r\n");
             writer.flush();
             response = reader.readLine();
             System.out.println("Server: " + response);
 
             // Send the RCPT TO command for the main recipient
             for (String recipient : recipients) {
-                writer.write("RCPT TO: <" + recipient + ">\r\n");
+                writer.write("RCPT TO:<" + recipient + ">\r\n");
                 writer.flush();
                 response = reader.readLine();
                 System.out.println("Server: " + response);
@@ -70,7 +68,7 @@ public class SendMail {
 
             // Send the RCPT TO command for the CC recipient
             for (String ccRecipient : ccRecipients) {
-                writer.write("RCPT TO: <" + ccRecipient + ">\r\n");
+                writer.write("RCPT TO:<" + ccRecipient + ">\r\n");
                 writer.flush();
                 response = reader.readLine();
                 System.out.println("Server: " + response);
@@ -78,7 +76,7 @@ public class SendMail {
 
             // Send the RCPT TO command for the BCC recipient
             for (String bccRecipient : bccRecipients) {
-                writer.write("RCPT TO: <" + bccRecipient + ">\r\n");
+                writer.write("RCPT TO:<" + bccRecipient + ">\r\n");
                 writer.flush();
                 response = reader.readLine();
                 System.out.println("Server: " + response);
@@ -90,27 +88,38 @@ public class SendMail {
             response = reader.readLine();
             System.out.println("Server: " + response);
 
+            writer.write("Content-Type: multipart/mixed; boundary=\"------------\"\r\n");
+
+
             // Send the email headers and body
-            writer.write("Subject: " + subject + "\r\n");
-            writer.write("From: " + Static.SENDER + "\r\n");
             for (String recipient : recipients) {
-                writer.write("To: " + recipient + "\r\n");
+                writer.write("To: " + recipient + ", ");
             }
+            writer.write("\r\n");
+
+              for (String ccRecipient : ccRecipients) {
+                writer.write("Cc: " + ccRecipient + ", ");
+            }
+            writer.write("\r\n");
+
+
+            writer.write("From: \"" + Static.USERNAME + "\" <" + Static.SENDER + ">\r\n");
+            writer.write("Subject: " + subject + "\r\n");
+            
             for (String ccRecipient : ccRecipients) {
                 writer.write("Cc: " + ccRecipient + "\r\n");
             }
+
             // writer.write("Bcc: " + bccRecipient + "\r\n");
-            writer.write("Content-Type: multipart/mixed; boundary=boundary\r\n");
+            writer.write("Content-Type: multipart/mixed; boundary=\"boundary\"\r\n");
             writer.write("\r\n");
             writer.write("--boundary\r\n");
-            writer.write("Content-Type: text/plain; charset=UTF-8\r\n");
+            writer.write("Content-Type: text/plain; charset=UTF-8; format=flowed\r\n");
+            writer.write("Content-Transfer-Encoding: 7bit\r\n");
             writer.write("\r\n");
             writer.write(body + "\r\n");
             writer.write("--boundary\r\n");
-            writer.write("Content-Type: application/pdf; charset=UTF-8\r\n");
-            writer.write("Content-Disposition: attachment; filename=\"" + attachmentFilePaths[0] + "\"\r\n");
-            writer.write("Content-Transfer-Encoding: base64\r\n");
-            writer.write("\r\n");
+            
 
             
             readFileContent(attachmentFilePaths);
@@ -136,23 +145,55 @@ public class SendMail {
         }
     }
     
-    private void readFileContent(String[] attachmentFilePaths) {
+    private void readFileContent(String[] attachmentFilePaths){
+        
+        long totalFileSize = 0;
+            for (String attachmentFilePath : attachmentFilePaths) {
+                File file = new File(attachmentFilePath);
+                totalFileSize += file.length();
+            }
+
+            // Check if total file size is greater than 3MB
+            long threeMB = 3 * 1024 * 1024; // 3MB in bytes: 1MB = 1024KB, 1KB = 1024 bytes
+            if (totalFileSize > threeMB) {
+                // Perform actions if total file size is greater than 3MB
+                System.out.println("Total file size is greater than 3MB");
+                return;
+            }
+
         for (String attachmentFilePath : attachmentFilePaths) {
             try {
-                 byte[] fileContent = Files.readAllBytes(Paths.get(attachmentFilePath));
-            String encodedString = Base64.getEncoder().encodeToString(fileContent);
-            int chunkSize = 72;
-            for (int i = 0; i < encodedString.length(); i += chunkSize) {
-                int endIndex = Math.min(i + chunkSize, encodedString.length());
-                String chunk = encodedString.substring(i, endIndex);
-                writer.write(chunk + "\r\n");
-            }
+                if(attachmentFilePath.endsWith(".txt"))
+                    writer.write("Content-Type: text/plain; charset=UTF-8; name=\"" + attachmentFilePath + "\r\n");
+                else if (attachmentFilePath.endsWith(".pdf"))
+                    writer.write("Content-Type: application/pdf; name=\"" + attachmentFilePath + "\r\n");
+                else if (attachmentFilePath.endsWith(".jpg"))
+                    writer.write("Content-Type: image/jpeg; name=\"" + attachmentFilePath + "\r\n");
+                else if (attachmentFilePath.endsWith(".zip"))
+                    writer.write("Content-Type: application/zip; name=\"" + attachmentFilePath + "\r\n");
+                else if (attachmentFilePath.endsWith(".docx"))
+                    writer.write(
+                            "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document; name=\""
+                                    + attachmentFilePath + "\r\n");
+                
+                writer.write("Content-Disposition: attachment; filename=\"" + new File(attachmentFilePath).getName() + "\"\r\n");
+                writer.write("Content-Transfer-Encoding: base64\r\n");
+                writer.write("\r\n");
+
+                byte[] fileContent = Files.readAllBytes(Paths.get(attachmentFilePath));
+                String encodedString = Base64.getEncoder().encodeToString(fileContent);
+                int chunkSize = 72;
+                for (int i = 0; i < encodedString.length(); i += chunkSize) {
+                    int endIndex = Math.min(i + chunkSize, encodedString.length());
+                    String chunk = encodedString.substring(i, endIndex);
+                    writer.write(chunk + "\r\n");
+                }
+                writer.write("--boundary\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-
 }
 
     
