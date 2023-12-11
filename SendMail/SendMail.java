@@ -1,4 +1,5 @@
 package SendMail;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -10,17 +11,17 @@ import Config.Static;
 
 public class SendMail {
 
-    String[] recipients = {};
-    String[] ccRecipients = {};
+    String[] recipients = { "lyhai1502@gmail.com", "lyhai1502.work@gmail.com" };
+    String[] ccRecipients = { "godzerohai1221@gmail.com", "godzerohai1222@gmail.com" };
     String[] bccRecipients = {}; // Add BCC recipient
-    String subject = "";
-    String body = "";
+    String subject = "Test";
+    String body = "Test";
     String[] attachmentFilePaths = {}; // Replace with the actual file path
 
     Socket socket;
     BufferedReader reader;
     BufferedWriter writer;
-    
+
     public SendMail() throws UnknownHostException, IOException {
         // Connect to the SMTP server
         socket = new Socket(Static.SERVER, Static.STMP_PORT);
@@ -28,9 +29,12 @@ public class SendMail {
         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
 
-   
     public SendMail(String[] recipients, String[] ccRecipients, String[] bccRecipients, String subject, String body,
-            String[] attachmentFilePaths) {
+            String[] attachmentFilePaths) throws UnknownHostException, IOException {
+        // Connect to the SMTP server
+        socket = new Socket(Static.SERVER, Static.STMP_PORT);
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         this.recipients = recipients;
         this.ccRecipients = ccRecipients;
         this.bccRecipients = bccRecipients;
@@ -88,45 +92,50 @@ public class SendMail {
             response = reader.readLine();
             System.out.println("Server: " + response);
 
-            writer.write("Content-Type: multipart/mixed; boundary=\"------------\"\r\n");
+            if (attachmentFilePaths.length > 0)
+                writer.write("Content-Type: multipart/mixed; boundary=\"" + Static.BOUNDARY + "\"\r\n");
 
-
-            // Send the email headers and body
+            // Send the email headers
+            writer.write("To: ");
             for (String recipient : recipients) {
-                writer.write("To: " + recipient + ", ");
+                if (recipient == recipients[recipients.length - 1]) {
+                    writer.write(recipient + "\r\n");
+                    break;
+                }
+                writer.write(recipient + ", ");
             }
-            writer.write("\r\n");
 
-              for (String ccRecipient : ccRecipients) {
-                writer.write("Cc: " + ccRecipient + ", ");
-            }
-            writer.write("\r\n");
-
-
-            writer.write("From: \"" + Static.USERNAME + "\" <" + Static.SENDER + ">\r\n");
-            writer.write("Subject: " + subject + "\r\n");
-            
+            writer.write("Cc: ");
             for (String ccRecipient : ccRecipients) {
-                writer.write("Cc: " + ccRecipient + "\r\n");
+                if (ccRecipient == ccRecipients[ccRecipients.length - 1]) {
+                    writer.write(ccRecipient + "\r\n");
+                    break;
+                }
+                writer.write(ccRecipient + ", ");
+            }
+
+            writer.write("From: " + Static.USERNAME + " <" + Static.SENDER + ">\r\n");
+            writer.write("Subject: " + subject + "\r");
+
+            if (attachmentFilePaths.length > 0) {
+                writer.write("\n\nThis is a multi-part message in MIME format." + "\r\n");
+                writer.write("--" + Static.BOUNDARY + "\r");
             }
 
             // writer.write("Bcc: " + bccRecipient + "\r\n");
-            writer.write("Content-Type: multipart/mixed; boundary=\"boundary\"\r\n");
-            writer.write("\r\n");
-            writer.write("--boundary\r\n");
-            writer.write("Content-Type: text/plain; charset=UTF-8; format=flowed\r\n");
+
+            // Send the email body
+            writer.write("\nContent-Type: text/plain; charset=UTF-8; format=flowed\r\n");
             writer.write("Content-Transfer-Encoding: 7bit\r\n");
             writer.write("\r\n");
             writer.write(body + "\r\n");
-            writer.write("--boundary\r\n");
-            
 
-            
+            if (attachmentFilePaths.length > 0)
+                writer.write("\r\n--" + Static.BOUNDARY + "\r\n");
+
+            // Send the attachment
             readFileContent(attachmentFilePaths);
 
-
-            writer.write("\r\n");
-            writer.write("--boundary--\r\n");
             writer.write(".\r\n");
             writer.flush();
             response = reader.readLine();
@@ -144,39 +153,30 @@ public class SendMail {
             e.printStackTrace();
         }
     }
-    
-    private void readFileContent(String[] attachmentFilePaths){
-        
-        long totalFileSize = 0;
-            for (String attachmentFilePath : attachmentFilePaths) {
-                File file = new File(attachmentFilePath);
-                totalFileSize += file.length();
-            }
 
-            // Check if total file size is greater than 3MB
-            long threeMB = 3 * 1024 * 1024; // 3MB in bytes: 1MB = 1024KB, 1KB = 1024 bytes
-            if (totalFileSize > threeMB) {
-                // Perform actions if total file size is greater than 3MB
-                System.out.println("Total file size is greater than 3MB");
-                return;
-            }
+    private void readFileContent(String[] attachmentFilePaths) {
+        if (!checkTotalFileSize(attachmentFilePaths)) {
+            return;
+        }
 
         for (String attachmentFilePath : attachmentFilePaths) {
             try {
-                if(attachmentFilePath.endsWith(".txt"))
-                    writer.write("Content-Type: text/plain; charset=UTF-8; name=\"" + attachmentFilePath + "\r\n");
+                // Start of each attachment
+                if (attachmentFilePath.endsWith(".txt"))
+                    writer.write("Content-Type: text/plain; charset=UTF-8; name=\"" + attachmentFilePath + "\"\r\n");
                 else if (attachmentFilePath.endsWith(".pdf"))
-                    writer.write("Content-Type: application/pdf; name=\"" + attachmentFilePath + "\r\n");
+                    writer.write("Content-Type: application/pdf; name=\"" + attachmentFilePath + "\"\r\n");
                 else if (attachmentFilePath.endsWith(".jpg"))
-                    writer.write("Content-Type: image/jpeg; name=\"" + attachmentFilePath + "\r\n");
+                    writer.write("Content-Type: image/jpeg; name=\"" + attachmentFilePath + "\"\r\n");
                 else if (attachmentFilePath.endsWith(".zip"))
-                    writer.write("Content-Type: application/zip; name=\"" + attachmentFilePath + "\r\n");
+                    writer.write("Content-Type: application/zip; name=\"" + attachmentFilePath + "\"\r\n");
                 else if (attachmentFilePath.endsWith(".docx"))
                     writer.write(
                             "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document; name=\""
-                                    + attachmentFilePath + "\r\n");
-                
-                writer.write("Content-Disposition: attachment; filename=\"" + new File(attachmentFilePath).getName() + "\"\r\n");
+                                    + attachmentFilePath + "\"\r\n");
+
+                writer.write("Content-Disposition: attachment; filename=\"" + new File(attachmentFilePath).getName()
+                        + "\"\r\n");
                 writer.write("Content-Transfer-Encoding: base64\r\n");
                 writer.write("\r\n");
 
@@ -188,12 +188,34 @@ public class SendMail {
                     String chunk = encodedString.substring(i, endIndex);
                     writer.write(chunk + "\r\n");
                 }
-                writer.write("--boundary\r\n");
+
+                // End of each attachment
+                if (attachmentFilePath == attachmentFilePaths[attachmentFilePaths.length - 1]) {
+                    writer.write("\r\n--" + Static.BOUNDARY + "--\r\n");
+                    break;
+                }
+
+                writer.write("--" + Static.BOUNDARY + "\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-}
 
-    
+    public boolean checkTotalFileSize(String[] attachmentFilePaths) {
+        long totalFileSize = 0;
+        for (String attachmentFilePath : attachmentFilePaths) {
+            File file = new File(attachmentFilePath);
+            totalFileSize += file.length();
+        }
+
+        // Check if total file size is greater than 3MB
+        long threeMB = 3 * 1024 * 1024; // 3MB in bytes: 1MB = 1024KB, 1KB = 1024 bytes
+        if (totalFileSize > threeMB) {
+            // Perform actions if total file size is greater than 3MB
+            System.out.println("Total file size is greater than 3MB");
+            return false;
+        }
+        return true;
+    }
+}

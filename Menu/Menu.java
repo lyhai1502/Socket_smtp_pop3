@@ -1,9 +1,16 @@
+package Menu;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
 import java.util.Scanner;
+
+import SendMail.SendMail;
+import Config.Static;
 
 public class Menu {
     public static void main(String[] args) {
@@ -17,7 +24,7 @@ public class Menu {
 
         // Step 2: Read config file
         try {
-            String content = new String(Files.readAllBytes(Paths.get("config.json")));
+            String content = new String(Files.readAllBytes(Paths.get(".\\Config\\config.json")));
             JSONParser parser = new JSONParser();
             JSONObject config = (JSONObject) parser.parse(content);
 
@@ -38,9 +45,13 @@ public class Menu {
             System.out.println("Email: " + email);
 
             String mailServer = (String) config.get("MailServer");
-            long smtp = (int) config.get("SMTP");
-            long pop3 = (int) config.get("POP3");
-            long autoload = (int) config.get("Autoload");
+          
+            // int smtp = (int) config.get("SMTP");
+            // int pop3 = (int) config.get("POP3");
+            // int autoload = (int) config.get("Autoload");
+            int smtp = ((Long) config.get("SMTP")).intValue();
+            int pop3 = ((Long) config.get("POP3")).intValue();
+            int autoload = ((Long) config.get("Autoload")).intValue();
 
             // Use the properties here...
 
@@ -53,6 +64,8 @@ public class Menu {
             System.out.println("POP3: " + pop3);
             System.out.println("Autoload: " + autoload);
 
+            // Set the properties
+            Static.setProperties(mailServer, (int) smtp, (int) pop3, password, email, email, (int) autoload);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -72,7 +85,48 @@ public class Menu {
             switch (choice) {
                 case 1:
                     System.out.println("Đây là thông tin soạn email: (nếu không điền vui lòng nhấn enter để bỏ qua)");
-                    // Add your code here to handle send mail
+                    scanner.nextLine(); // Consume newline left-over
+                    System.out.print("To (nếu muốn gửi cho nhiều người hãy phân tách các email bởi dấu phẩy): ");
+                    String toInput = scanner.nextLine();
+                    String[] to = toInput.isEmpty() ? new String[0] : toInput.split(",\\s*");
+                    
+                    System.out.print("CC (nếu muốn gửi cho nhiều người hãy phân tách các email bởi dấu phẩy): ");
+                    String ccInput = scanner.nextLine();
+                    String[] cc = ccInput.isEmpty() ? new String[0] : ccInput.split(",\\s*");
+                    
+                    System.out.print("BCC (nếu muốn gửi cho nhiều người hãy phân tách các email bởi dấu phẩy): ");
+                    String bccInput = scanner.nextLine();
+                    String[] bcc = bccInput.isEmpty() ? new String[0] : bccInput.split(",\\s*");
+                    
+                    System.out.print("Subject: ");
+                    String subject = scanner.nextLine();
+                    
+                    System.out.print("Content: ");
+                    String content = scanner.nextLine();
+                    
+                    System.out.print("Có gửi kèm file (1. có, 2. không): ");
+                    int hasFile = scanner.nextInt();
+                    String[] filePaths = new String[0];
+                    if (hasFile == 1) {
+                        System.out.print("Số lượng file muốn gửi: ");
+                        int fileCount = scanner.nextInt();
+                        scanner.nextLine(); // Consume newline left-over
+                        filePaths = new String[fileCount];
+                        for (int i = 0; i < fileCount; i++) {
+                            System.out.print("Cho biết đường dẫn file thứ " + (i + 1) + ": ");
+                            filePaths[i] = scanner.nextLine();
+                        }
+                    }
+                    
+                    try {
+                        SendMail sendMail = new SendMail(to, cc, bcc, subject, content, filePaths);
+                        sendMail.sendMail();
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     break;
                 case 2:
                     System.out.println("Đây là danh sách các folder trong mailbox của bạn:");

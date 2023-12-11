@@ -12,7 +12,10 @@ public class Static {
     public static String SENDER = "lyhai1502@gmail.com";
     public static int AUTOLOAD = 10;
     
-    Static(String server, int stmp_port, int pop3_port, String password, String username, String sender, int autoload) {
+    public static String BOUNDARY = "------------" + System.currentTimeMillis();
+
+
+    public static void setProperties(String server, int stmp_port, int pop3_port, String password, String username, String sender, int autoload) {
         SERVER = server;
         STMP_PORT = stmp_port;
         POP3_PORT = pop3_port;
