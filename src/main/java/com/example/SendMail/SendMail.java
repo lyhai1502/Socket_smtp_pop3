@@ -1,4 +1,4 @@
-package SendMail;
+package com.example.SendMail;
 
 import java.io.*;
 import java.net.Socket;
@@ -7,15 +7,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Base64;
 
-import Config.Static;
+import com.example.Config.Static;
 
 public class SendMail {
 
-    String[] recipients = { "example@gmail.com" };
+    String[] recipients = {};
     String[] ccRecipients = {};
     String[] bccRecipients = {}; // Add BCC recipient
-    String subject = "Test";
-    String body = "Test";
+    String subject = "Test Subject";
+    String body = "Test Body";
     String[] attachmentFilePaths = {}; // Replace with the actual file path
 
     Socket socket;
@@ -105,7 +105,8 @@ public class SendMail {
                 writer.write(recipient + ", ");
             }
 
-            writer.write("Cc: ");
+            if (ccRecipients.length > 0)
+                writer.write("Cc: ");
             for (String ccRecipient : ccRecipients) {
                 if (ccRecipient == ccRecipients[ccRecipients.length - 1]) {
                     writer.write(ccRecipient + "\r\n");
@@ -216,6 +217,7 @@ public class SendMail {
             System.out.println("Total file size is greater than 3MB");
             return false;
         }
+
         return true;
     }
 }
