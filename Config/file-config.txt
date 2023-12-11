@@ -1,7 +1,0 @@
-General:
-Username: Ly Hai <lyhai1502@gmail.com>
-Password: 15022002Hai*
-MailServer: 127.0.0.1
-SMTP: 2225 
-POP3: 3335 
-Autoload: 10
