@@ -11,8 +11,8 @@ import Config.Static;
 
 public class SendMail {
 
-    String[] recipients = { "lyhai1502@gmail.com", "lyhai1502.work@gmail.com" };
-    String[] ccRecipients = { "godzerohai1221@gmail.com", "godzerohai1222@gmail.com" };
+    String[] recipients = { "example@gmail.com" };
+    String[] ccRecipients = {};
     String[] bccRecipients = {}; // Add BCC recipient
     String subject = "Test";
     String body = "Test";
