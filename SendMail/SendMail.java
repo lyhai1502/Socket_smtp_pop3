@@ -14,8 +14,8 @@ public class SendMail {
     String[] recipients = { "example@gmail.com" };
     String[] ccRecipients = {};
     String[] bccRecipients = {}; // Add BCC recipient
-    String subject = "Test";
-    String body = "Test";
+    String subject = "Test Subject";
+    String body = "Test Body";
     String[] attachmentFilePaths = {}; // Replace with the actual file path
 
     Socket socket;
@@ -105,7 +105,8 @@ public class SendMail {
                 writer.write(recipient + ", ");
             }
 
-            writer.write("Cc: ");
+            if (ccRecipients.length > 0)
+                writer.write("Cc: ");
             for (String ccRecipient : ccRecipients) {
                 if (ccRecipient == ccRecipients[ccRecipients.length - 1]) {
                     writer.write(ccRecipient + "\r\n");

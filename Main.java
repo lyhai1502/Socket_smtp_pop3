@@ -5,12 +5,19 @@ import SendMail.SendMail;
 public class Main {
     public static void main(String[] args) throws UnknownHostException, IOException {
 
+        // Replace with the actual recipient address
         String[] recipients = { "lyhai1502@gmail.com" };
-        String[] ccRecipients = { "lyhai1502.work@gmail.com" };
+        // Add CC recipient
+        String[] ccRecipients = {};
+        // Add BCC recipient
         String[] bccRecipients = {};
-        String subject = "Test2";
-        String body = "Test2";
+        // Replace with the actual subject
+        String subject = "Test";
+        // Replace with the actual body of the message
+        String body = "Test";
+        // Replace with the actual file path
         String[] attachmentFilePaths = { "/Users/vanlyhai/Downloads/doc.docx" };
+
         SendMail sendMail = new SendMail(recipients, ccRecipients, bccRecipients, subject, body, attachmentFilePaths);
         sendMail.sendMail();
     }
