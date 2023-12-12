@@ -14,8 +14,8 @@ public class SendMail {
     String[] recipients = {};
     String[] ccRecipients = {};
     String[] bccRecipients = {}; // Add BCC recipient
-    String subject = "Test Subject";
-    String body = "Test Body";
+    String subject = "";
+    String body = "";
     String[] attachmentFilePaths = {}; // Replace with the actual file path
 
     Socket socket;
