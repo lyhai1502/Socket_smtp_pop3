@@ -1,4 +1,22 @@
 {
+  "Filters": {
+    "From": {
+      "Mails": ["ahihi@gmail.com", "ahuhu@gmail.com"],
+      "Folder": "PROJECT"
+    },
+    "Subject": {
+      "Keywords": ["urgent", "ASAP"],
+      "Folder": "IMPORTANT"
+    },
+    "Content": {
+      "Keywords": ["report", "meeting"],
+      "Folder": "WORK"
+    },
+    "Spam": {
+      "Keywords": ["virus", "hack", "crack"],
+      "Folder": "SPAM"
+    }
+  },
   "ServerInformation": {
     "SMTP": 2225,
     "MailServer": "127.0.0.1",
@@ -8,7 +26,21 @@
   "Users": [
     {
       "Username": "Quan Nguyen <ntquan@testing.com>",
-      "Mailboxes": ["INBOX", "PROJECT", "IMPORTANT", "WORK", "SPAM"],
+      "Mailboxes": {
+        "INBOX": [
+          {
+            "FROM": "example@gmail.com",
+            "TO": [],
+            "CC": [],
+            "Status": "Unread",
+            "Content": "Content",
+            "ID": "",
+            "Attachments": ["file1.txt", "file2.txt"],
+            "Subject": "Subject"
+          },
+          {}
+        ]
+      },
       "Password": "YWhpaGk="
     }
   ]
