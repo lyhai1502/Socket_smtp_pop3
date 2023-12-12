@@ -18,7 +18,7 @@
       <dependency>
           <groupId>com.google.code.gson</groupId>
           <artifactId>gson</artifactId>
-          <version>2.10.1</version> <!-- Bạn có thể kiểm tra phiên bản mới nhất trên trang chính thức của Gson -->
+          <version>2.10.1</version>
       </dependency>
       <dependency>
         <groupId>com.googlecode.json-simple</groupId>

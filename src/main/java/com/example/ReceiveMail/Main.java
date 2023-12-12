@@ -27,7 +27,8 @@ public class Main {
         int count = 0;
         for (EmailSocket emailSocket : emailSockets) {
             String emailSubject = emailSocket.get("Subject");
-            if (emailSubject == null) continue;
+            if (emailSubject == null)
+                continue;
 
             emailSubject = emailSubject.toUpperCase();
             subject = subject.toUpperCase();
@@ -47,7 +48,8 @@ public class Main {
         for (int index = 0; index < emailSockets.size(); index++) {
             EmailSocket emailSocket = emailSockets.get(index);
             String emailFrom = emailSocket.get("From");
-            if (emailFrom == null) continue;
+            if (emailFrom == null)
+                continue;
 
             emailFrom = emailFrom.toUpperCase();
             from = from.toUpperCase();
@@ -60,6 +62,7 @@ public class Main {
             }
         }
     }
+
     public static void readMultipart(String[] lines, String boundary) {
         StringBuilder emailContent = new StringBuilder();
         for (String line : lines) {
@@ -76,8 +79,7 @@ public class Main {
     public static void readEmail(EmailSocket email) {
         String content = email.get("Content");
         if (email.get("Content-Type") != null &&
-            email.get("Content-Type").contains("multipart")
-        ) {
+                email.get("Content-Type").contains("multipart")) {
             String boundary = email.get("boundary").replaceAll("\"", "");
             String[] lines = content.split("\n");
             readMultipart(lines, boundary);
@@ -87,8 +89,7 @@ public class Main {
                 extractFile(email.get("filename").replaceAll("\"", ""), email.get("Content"));
             } else if (email.get("Content-Type") != null &&
                     email.get("Content-Type").contains("text") &&
-                    !email.get("Content-Type").contains("html")
-            ) {
+                    !email.get("Content-Type").contains("html")) {
                 System.out.println("Noi dung:" + " " + email.get("Content"));
             }
         }
@@ -105,7 +106,6 @@ public class Main {
 
             byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
 
-
             fos.write(decodedBytes);
 
             fos.close();
@@ -119,8 +119,8 @@ public class Main {
         int port = 3335; // Port 110 thường được sử dụng cho POP3
 
         try (Socket socket = new Socket(host, port);
-             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
 
             // Đọc phản hồi từ máy chủ
             String response = in.readLine();
@@ -153,19 +153,20 @@ public class Main {
             }
             System.out.println("Server: " + listEmail);
 
-            // Gửi lệnh RETR để lấy nội dung của một email cụ thể (thay thế số 1 bằng số của email cần lấy)
-//            out.println("RETR 7");
-//            System.out.println("RETR 5"
-//
-//
-//            );
+            // Gửi lệnh RETR để lấy nội dung của một email cụ thể (thay thế số 1 bằng số của
+            // email cần lấy)
+            // out.println("RETR 7");
+            // System.out.println("RETR 5"
+            //
+            //
+            // );
 
             // Đọc nội dung email
-//            StringBuilder emailContent = new StringBuilder();
-//            String line;
-//            while (!(line = in.readLine()).equals(".")) {
-//                emailContent.append(line).append("\n");
-//            }
+            // StringBuilder emailContent = new StringBuilder();
+            // String line;
+            // while (!(line = in.readLine()).equals(".")) {
+            // emailContent.append(line).append("\n");
+            // }
             ArrayList<EmailSocket> emailSockets = new ArrayList<>();
             for (int i = 1; i <= size; i++) {
                 out.println("RETR " + i);
@@ -179,25 +180,25 @@ public class Main {
                 inbox.add(emailSocket);
             }
 
-//            readEmail(inbox.get(6));
+            // readEmail(inbox.get(6));
 
-//            int count = 0;
-//            for (EmailSocket email : emailSockets) {
-//                System.out.println("Email: " + count++);
-//                readEmail(email);
-//            }
-//            readEmail(emailSockets.get(5));
+            // int count = 0;
+            // for (EmailSocket email : emailSockets) {
+            // System.out.println("Email: " + count++);
+            // readEmail(email);
+            // }
+            // readEmail(emailSockets.get(5));
 
-//            filterEmailWithSubject(emailSockets, "Test");
-//            filterEmailWithFrom(inbox, "xuanchien");
+            // filterEmailWithSubject(emailSockets, "Test");
+            // filterEmailWithFrom(inbox, "xuanchien");
 
-//            readEmailContent(String.valueOf(emailContent));
-//            EmailSocket emailSocket = new EmailSocket(emailContent.toString());
-//            System.out.println(emailSocket);
-//            System.out.println(emailSocket.getContent());
-//            emailSocket.readEmail();
+            // readEmailContent(String.valueOf(emailContent));
+            // EmailSocket emailSocket = new EmailSocket(emailContent.toString());
+            // System.out.println(emailSocket);
+            // System.out.println(emailSocket.getContent());
+            // emailSocket.readEmail();
 
-//             Gửi lệnh QUIT để kết thúc phiên làm việc
+            // Gửi lệnh QUIT để kết thúc phiên làm việc
             out.println("QUIT");
             System.out.println("QUIT");
             response = in.readLine();
