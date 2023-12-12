@@ -1,5 +1,6 @@
 package com.example.Menu;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -7,7 +8,6 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import java.util.Scanner;
 
 import com.example.SendMail.SendMail;
@@ -18,7 +18,7 @@ public class Menu {
         Scanner scanner = new Scanner(System.in);
 
         // Step 1: Login
-        System.out.print("Enter username: ");
+        System.out.print("Enter email: ");
         String enteredUsername = scanner.nextLine();
         System.out.print("Enter password: ");
         String enteredPassword = scanner.nextLine();
@@ -29,43 +29,63 @@ public class Menu {
             JSONParser parser = new JSONParser();
             JSONObject config = (JSONObject) parser.parse(content);
 
-            String fullUsername = (String) config.get("Username");
-            String email = fullUsername.substring(fullUsername.indexOf("<") + 1, fullUsername.lastIndexOf(">"));
-            String name = fullUsername.substring(0, fullUsername.indexOf("<")).trim();
-            String password = (String) config.get("Password");
+            boolean isUserExist = false;
+            String email = "";
+            String password = "";
 
-            // Check if entered username and password match with the ones in the config file
-            if (!email.equals(enteredUsername) || !password.equals(enteredPassword)) {
+            // Get the users array from the config object
+            JSONArray users = (JSONArray) config.get("Users");
+            for (Object userObj : users) {
+                JSONObject user = (JSONObject) userObj;
+                String fullUsername = (String) user.get("Username");
+                email = fullUsername.substring(fullUsername.indexOf("<") + 1, fullUsername.lastIndexOf(">"));
+                password = (String) user.get("Password");
 
-                System.out.println("Invalid username or password.");
-                scanner.close();
-                return;
+                if (email.equals(enteredUsername) && password.equals(enteredPassword)) {
+                    isUserExist = true;
+                    break;
+                }
             }
 
-            System.out.println("Name: " + name);
-            System.out.println("Email: " + email);
+            // Check if entered username and password match with the ones in the config file
+            if (isUserExist == false) {
+                // Create a new user object
+                JSONObject newUser = new JSONObject();
+                newUser.put("Username", enteredUsername + " <" + enteredUsername + ">");
+                newUser.put("Password", enteredPassword);
+                JSONArray mailboxes = new JSONArray();
+                mailboxes.add("INBOX");
+                mailboxes.add("PROJECT");
+                mailboxes.add("IMPORTANT");
+                mailboxes.add("WORK");
+                mailboxes.add("SPAM");
+                newUser.put("Mailboxes", mailboxes);
 
-            String mailServer = (String) config.get("MailServer");
+                // Add the new user to the users array
+                users.add(newUser);
 
-            // int smtp = (int) config.get("SMTP");
-            // int pop3 = (int) config.get("POP3");
-            // int autoload = (int) config.get("Autoload");
-            int smtp = ((Long) config.get("SMTP")).intValue();
-            int pop3 = ((Long) config.get("POP3")).intValue();
-            int autoload = ((Long) config.get("Autoload")).intValue();
+                // Write the updated config object back to the file
+                Files.write(Paths.get(Static.CONFIG_PATH), config.toJSONString().getBytes());
 
+            }
+
+            JSONObject serverInformation = (JSONObject) config.get("ServerInformation");
             // Use the properties here...
+            String mailServer = (String) serverInformation.get("MailServer");
+            int smtp = ((Long) serverInformation.get("SMTP")).intValue();
+            int pop3 = ((Long) serverInformation.get("POP3")).intValue();
+            int autoload = ((Long) serverInformation.get("Autoload")).intValue();
 
             // Print the variables
-            System.out.println("Username: " + name);
-            System.out.println("Password: " + password);
+            System.out.println("Name: " + enteredUsername);
+            System.out.println("Email: " + enteredPassword);
             System.out.println("Mail Server: " + mailServer);
             System.out.println("SMTP: " + smtp);
             System.out.println("POP3: " + pop3);
             System.out.println("Autoload: " + autoload);
 
             // Set the properties
-            Static.setProperties(mailServer, (int) smtp, (int) pop3, password, name, email, (int) autoload);
+            Static.setProperties(mailServer, (int) smtp, (int) pop3, password, email, email, (int) autoload);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
