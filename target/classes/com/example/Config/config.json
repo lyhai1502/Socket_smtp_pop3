@@ -1,8 +1,20 @@
 {
-  "Username": "Quan Nguyen <ntquan@testing.com>",
-  "Password": "ahihi",
-  "MailServer": "127.0.0.1",
-  "SMTP": 2225,
-  "POP3": 3335,
-  "Autoload": 10
+  "ServerInformation": {
+    "SMTP": 2225,
+    "MailServer": "127.0.0.1",
+    "Autoload": 10,
+    "POP3": 3335
+  },
+  "Users": [
+    {
+      "Username": "Quan Nguyen <ntquan@testing.com>",
+      "Mailboxes": ["INBOX", "PROJECT", "IMPORTANT", "WORK", "SPAM"],
+      "Password": "ahihi"
+    },
+    {
+      "Username": "lyhai1502@gmail.com <lyhai1502@gmail.com>",
+      "Mailboxes": ["INBOX", "PROJECT", "IMPORTANT", "WORK", "SPAM"],
+      "Password": "123123"
+    }
+  ]
 }
