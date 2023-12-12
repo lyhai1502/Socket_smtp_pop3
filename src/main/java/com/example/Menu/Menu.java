@@ -12,83 +12,14 @@ import java.util.Scanner;
 
 import com.example.SendMail.SendMail;
 import com.example.Config.Static;
+import com.example.PasswordEncoder.PasswordEncoder;
 
 public class Menu {
+
     public static void viewMenu() {
         Scanner scanner = new Scanner(System.in);
 
-        // Step 1: Login
-        System.out.print("Enter email: ");
-        String enteredUsername = scanner.nextLine();
-        System.out.print("Enter password: ");
-        String enteredPassword = scanner.nextLine();
-
-        // Step 2: Read config file
-        try {
-            String content = new String(Files.readAllBytes(Paths.get(Static.CONFIG_PATH)));
-            JSONParser parser = new JSONParser();
-            JSONObject config = (JSONObject) parser.parse(content);
-
-            boolean isUserExist = false;
-            String email = "";
-            String password = "";
-
-            // Get the users array from the config object
-            JSONArray users = (JSONArray) config.get("Users");
-            for (Object userObj : users) {
-                JSONObject user = (JSONObject) userObj;
-                String fullUsername = (String) user.get("Username");
-                email = fullUsername.substring(fullUsername.indexOf("<") + 1, fullUsername.lastIndexOf(">"));
-                password = (String) user.get("Password");
-
-                if (email.equals(enteredUsername) && password.equals(enteredPassword)) {
-                    isUserExist = true;
-                    break;
-                }
-            }
-
-            // Check if entered username and password match with the ones in the config file
-            if (isUserExist == false) {
-                // Create a new user object
-                JSONObject newUser = new JSONObject();
-                newUser.put("Username", enteredUsername + " <" + enteredUsername + ">");
-                newUser.put("Password", enteredPassword);
-                JSONArray mailboxes = new JSONArray();
-                mailboxes.add("INBOX");
-                mailboxes.add("PROJECT");
-                mailboxes.add("IMPORTANT");
-                mailboxes.add("WORK");
-                mailboxes.add("SPAM");
-                newUser.put("Mailboxes", mailboxes);
-
-                // Add the new user to the users array
-                users.add(newUser);
-
-                // Write the updated config object back to the file
-                Files.write(Paths.get(Static.CONFIG_PATH), config.toJSONString().getBytes());
-
-            }
-
-            JSONObject serverInformation = (JSONObject) config.get("ServerInformation");
-            // Use the properties here...
-            String mailServer = (String) serverInformation.get("MailServer");
-            int smtp = ((Long) serverInformation.get("SMTP")).intValue();
-            int pop3 = ((Long) serverInformation.get("POP3")).intValue();
-            int autoload = ((Long) serverInformation.get("Autoload")).intValue();
-
-            // Print the variables
-            System.out.println("Name: " + enteredUsername);
-            System.out.println("Email: " + enteredPassword);
-            System.out.println("Mail Server: " + mailServer);
-            System.out.println("SMTP: " + smtp);
-            System.out.println("POP3: " + pop3);
-            System.out.println("Autoload: " + autoload);
-
-            // Set the properties
-            Static.setProperties(mailServer, (int) smtp, (int) pop3, password, email, email, (int) autoload);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        Login(scanner);
 
         // Step 3: Show menu
         int choice;
@@ -153,7 +84,9 @@ public class Menu {
                     // Add your code here to handle read mail
                     break;
                 case 3:
-                    System.out.println("Thoát");
+                    scanner.nextLine(); // Consume newline left-over
+                    System.out.println("Thoát về màn hình đăng nhập.");
+                    viewMenu();
                     break;
                 default:
                     System.out.println("Lựa chọn không hợp lệ. Vui lòng nhập một số từ 1 đến 3.");
@@ -161,5 +94,87 @@ public class Menu {
         } while (choice != 3);
 
         scanner.close();
+    }
+
+    private static void Login(Scanner scanner) {
+        // Step 1: Login
+        System.out.print("Enter email: ");
+        String enteredUsername = scanner.nextLine();
+        System.out.print("Enter password: ");
+        String enteredPassword = scanner.nextLine();
+
+        // Step 2: Read config file
+        try {
+            String content = new String(Files.readAllBytes(Paths.get(Static.CONFIG_PATH)));
+            JSONParser parser = new JSONParser();
+            JSONObject config = (JSONObject) parser.parse(content);
+
+            boolean isUserExist = false;
+            String email = "";
+            String password = "";
+
+            // Get the users array from the config object
+            JSONArray users = (JSONArray) config.get("Users");
+            for (Object userObj : users) {
+                JSONObject user = (JSONObject) userObj;
+                String fullUsername = (String) user.get("Username");
+                email = fullUsername.substring(fullUsername.indexOf("<") + 1, fullUsername.lastIndexOf(">"));
+                password = (String) user.get("Password");
+
+                if (email.equals(enteredUsername)) {
+                    while (!password.equals(PasswordEncoder.encodePassword(enteredPassword))) {
+                        System.out.println("Wrong password");
+
+                        System.out.print("Enter password: ");
+                        enteredPassword = scanner.nextLine();
+                    }
+                    isUserExist = true;
+                    break;
+                }
+            }
+
+            // Check if entered username and password match with the ones in the config file
+            if (isUserExist == false) {
+                System.out.println("User does not exist. Created new user.");
+                // Create a new user object
+                JSONObject newUser = new JSONObject();
+                newUser.put("Username", enteredUsername + " <" + enteredUsername + ">");
+                newUser.put("Password", PasswordEncoder.encodePassword(enteredPassword));
+                JSONArray mailboxes = new JSONArray();
+                mailboxes.add("INBOX");
+                mailboxes.add("PROJECT");
+                mailboxes.add("IMPORTANT");
+                mailboxes.add("WORK");
+                mailboxes.add("SPAM");
+                newUser.put("Mailboxes", mailboxes);
+
+                // Add the new user to the users array
+                users.add(newUser);
+
+                // Write the updated config object back to the file
+                Files.write(Paths.get(Static.CONFIG_PATH), config.toJSONString().getBytes());
+
+            }
+
+            JSONObject serverInformation = (JSONObject) config.get("ServerInformation");
+            // Use the properties here...
+            String mailServer = (String) serverInformation.get("MailServer");
+            int smtp = ((Long) serverInformation.get("SMTP")).intValue();
+            int pop3 = ((Long) serverInformation.get("POP3")).intValue();
+            int autoload = ((Long) serverInformation.get("Autoload")).intValue();
+
+            // Print the variables
+            System.out.println("Email: " + enteredUsername);
+            System.out.println("Mail Server: " + mailServer);
+            System.out.println("SMTP: " + smtp);
+            System.out.println("POP3: " + pop3);
+            System.out.println("Autoload: " + autoload);
+
+            // Set the properties
+            Static.setProperties(mailServer, (int) smtp, (int) pop3, PasswordEncoder.encodePassword(enteredPassword),
+                    enteredUsername, enteredUsername, (int) autoload);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }
