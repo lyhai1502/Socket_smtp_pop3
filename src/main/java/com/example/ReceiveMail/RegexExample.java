@@ -1,4 +1,4 @@
-package org.example;
+package com.example.ReceiveMail;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

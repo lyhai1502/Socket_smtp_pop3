@@ -1,4 +1,4 @@
-package org.example;
+package com.example.ReceiveMail;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package org.example;
+package com.example.ReceiveMail;
 
 import java.awt.desktop.AboutEvent;
 import java.io.File;

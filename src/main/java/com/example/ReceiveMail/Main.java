@@ -1,4 +1,4 @@
-package org.example;
+package com.example.ReceiveMail;
 
 import java.io.*;
 import java.lang.reflect.Array;
@@ -132,7 +132,7 @@ public class Main {
             System.out.println("Server: " + response);
 
             // Gửi lệnh PASS để xác thực với mật khẩu
-            out.println("PASS 123");
+            out.println("PASS 1233");
             response = in.readLine();
             System.out.println("Server: " + response);
 
@@ -179,7 +179,7 @@ public class Main {
                 inbox.add(emailSocket);
             }
 
-//            readEmail(inbox.get(10));
+//            readEmail(inbox.get(6));
 
 //            int count = 0;
 //            for (EmailSocket email : emailSockets) {
