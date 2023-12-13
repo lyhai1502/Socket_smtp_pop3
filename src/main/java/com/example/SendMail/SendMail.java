@@ -5,7 +5,9 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 
 import com.example.Config.Static;
 
@@ -94,6 +96,11 @@ public class SendMail {
 
             if (attachmentFilePaths.length > 0)
                 writer.write("Content-Type: multipart/mixed; boundary=\"" + Static.BOUNDARY + "\"\r\n");
+
+            // Send date
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+            String formattedDate = dateFormat.format(new Date());
+            writer.write("Date: " + formattedDate + "\r\n");
 
             // Send the email headers
             writer.write("To: ");
