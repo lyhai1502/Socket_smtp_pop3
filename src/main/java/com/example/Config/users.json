@@ -1,0 +1,29 @@
+[
+    {
+        "Username": "Quan Nguyen <ntquan@testing.com>",
+        "Mailboxes": {
+            "INBOX": [
+                {
+                    "CC": [],
+                    "Status": "Unread",
+                    "Content": "Content",
+                    "FROM": "example@gmail.com",
+                    "TO": [],
+                    "ID": "",
+                    "Attachments": [
+                        "file1.txt",
+                        "file2.txt"
+                    ],
+                    "Subject": "Subject"
+                },
+                {}
+            ]
+        },
+        "Password": "YWhpaGk="
+    },
+    {
+        "Username": "xuanchien@gmail.com <xuanchien@gmail.com>",
+        "Mailboxes": [],
+        "Password": "MTIz"
+    }
+]

@@ -4,15 +4,21 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import com.example.SendMail.SendMail;
 import com.example.Config.Static;
 import com.example.PasswordEncoder.PasswordEncoder;
+import com.example.ReceiveMail.EmailSocket;
+import com.example.ReceiveMail.ReceiveMail;
+import org.json.simple.parser.ParseException;
 
 public class Menu {
 
@@ -80,7 +86,8 @@ public class Menu {
 
                     break;
                 case 2:
-                    System.out.println("Đây là danh sách các folder trong mailbox của bạn:");
+                    readEmail(scanner);
+
                     // Add your code here to handle read mail
                     break;
                 case 3:
@@ -94,6 +101,80 @@ public class Menu {
         } while (choice != 3);
 
         scanner.close();
+    }
+
+    private static void readEmail(Scanner scanner) {
+        String choice = "";
+        scanner.nextLine();
+        do {
+            System.out.println("Đây là danh sách các folder trong mailbox của bạn:");
+            System.out.println("1. INBOX");
+            System.out.println("2. PROJECT");
+            System.out.println("3. IMPORTANT");
+            System.out.println("4. WORK");
+            System.out.println("5. SPAM");
+            System.out.print("Bạn muốn xem email trong folder nào: ");
+            choice = scanner.nextLine();
+            switch (Integer.parseInt(choice)) {
+                case 1:
+                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/INBOX");
+                    break;
+                case 2:
+                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/PROJECT");
+                    break;
+                case 3:
+                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/IMPORTANT");
+                    break;
+                case 4:
+                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/WORK");
+                    break;
+                case 5:
+                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/SPAM");
+                    break;
+                default:
+                    break;
+            }
+        } while(!choice.isEmpty());
+    }
+
+    private static void readProjectFolder(Scanner scanner, String path) {
+        String choice;
+//        scanner.nextLine();
+        do {
+            ArrayList<HashMap<String, String>> listEmail = ReceiveMail.loadData(path,
+                    "status.json");
+            ArrayList<EmailSocket> emails = new ArrayList<>();
+
+//            System.out.println(listEmail);
+            int count = 1;
+            for (var email : listEmail) {
+
+                EmailSocket emailSocket = new EmailSocket(path, email.get("id"));
+                emails.add(emailSocket);
+
+                System.out.println(count++ + ". (" + email.get("status") + ") " + emailSocket.get("From") + ", "
+                        + emailSocket.get("Subject"));
+
+            }
+
+            if (listEmail.isEmpty()) {
+                System.out.print("Thư mục rỗng Enter để quay lại: ");
+            } else {
+                System.out.print("Bạn muốn đọc Email thứ mấy: ");
+            }
+            choice = scanner.nextLine();
+            if (!choice.isEmpty() && Integer.parseInt(choice) <= listEmail.size()) {
+                ReceiveMail.readEmail(emails.get(Integer.parseInt(choice) - 1), Integer.parseInt(choice));
+                File directory = new File(path);
+                try {
+                    ReceiveMail.updateStatus(directory, ReceiveMail.generateeFileName(emails.get(Integer.parseInt(choice) - 1).get("Date")), "read");
+                } catch (IOException | ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+//            scanner.nextLine();
+//            choice = scanner.nextLine();
+        } while (!choice.isEmpty());
     }
 
     private static void Login(Scanner scanner) {
@@ -136,16 +217,18 @@ public class Menu {
             // Check if entered username and password match with the ones in the config file
             if (isUserExist == false) {
                 System.out.println("User does not exist. Created new user.");
+
                 // Create a new user object
                 JSONObject newUser = new JSONObject();
                 newUser.put("Username", enteredUsername + " <" + enteredUsername + ">");
                 newUser.put("Password", PasswordEncoder.encodePassword(enteredPassword));
-                JSONArray mailboxes = new JSONArray();
-                mailboxes.add("INBOX");
-                mailboxes.add("PROJECT");
-                mailboxes.add("IMPORTANT");
-                mailboxes.add("WORK");
-                mailboxes.add("SPAM");
+                JSONObject mailboxes = new JSONObject();
+                mailboxes.put("INBOX", new JSONArray());
+                mailboxes.put("PROJECT", new JSONArray());
+                mailboxes.put("IMPORTANT", new JSONArray());
+                mailboxes.put("WORK", new JSONArray());
+                mailboxes.put("SPAM", new JSONArray());
+
                 newUser.put("Mailboxes", mailboxes);
 
                 // Add the new user to the users array
@@ -176,5 +259,7 @@ public class Menu {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        ReceiveMail.getEmailFromThePOP3(enteredUsername, enteredPassword);
     }
 }

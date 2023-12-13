@@ -1,0 +1,31 @@
+{
+    "Content": {
+        "Keywords": [
+            "report",
+            "meeting"
+        ],
+        "Folder": "WORK"
+    },
+    "From": {
+        "Keywords": [
+            "xuanchien@gmail.com",
+            "ahuhu@gmail.com"
+        ],
+        "Folder": "PROJECT"
+    },
+    "Subject": {
+        "Keywords": [
+            "urgent",
+            "ASAP"
+        ],
+        "Folder": "IMPORTANT"
+    },
+    "Spam": {
+        "Keywords": [
+            "virus",
+            "hack",
+            "crack"
+        ],
+        "Folder": "SPAM"
+    }
+}
