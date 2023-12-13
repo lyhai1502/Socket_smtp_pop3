@@ -1,21 +1,12 @@
 {
   "Filters": {
+    "Content": { "Keywords": ["report", "meeting"], "Folder": "WORK" },
     "From": {
       "Mails": ["ahihi@gmail.com", "ahuhu@gmail.com"],
       "Folder": "PROJECT"
     },
-    "Subject": {
-      "Keywords": ["urgent", "ASAP"],
-      "Folder": "IMPORTANT"
-    },
-    "Content": {
-      "Keywords": ["report", "meeting"],
-      "Folder": "WORK"
-    },
-    "Spam": {
-      "Keywords": ["virus", "hack", "crack"],
-      "Folder": "SPAM"
-    }
+    "Subject": { "Keywords": ["urgent", "ASAP"], "Folder": "IMPORTANT" },
+    "Spam": { "Keywords": ["virus", "hack", "crack"], "Folder": "SPAM" }
   },
   "ServerInformation": {
     "SMTP": 2225,
@@ -29,11 +20,11 @@
       "Mailboxes": {
         "INBOX": [
           {
-            "FROM": "example@gmail.com",
-            "TO": [],
             "CC": [],
             "Status": "Unread",
             "Content": "Content",
+            "FROM": "example@gmail.com",
+            "TO": [],
             "ID": "",
             "Attachments": ["file1.txt", "file2.txt"],
             "Subject": "Subject"
