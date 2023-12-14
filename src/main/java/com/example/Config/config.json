@@ -76,6 +76,17 @@
                 "SPAM": []
             },
             "Password": "MTIz"
+        },
+        {
+            "Username": "123@gmail.com <123@gmail.com>",
+            "Mailboxes": {
+                "PROJECT": [],
+                "IMPORTANT": [],
+                "WORK": [],
+                "INBOX": [],
+                "SPAM": []
+            },
+            "Password": "MTIz"
         }
     ]
 }

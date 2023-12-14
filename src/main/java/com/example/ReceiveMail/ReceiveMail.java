@@ -15,6 +15,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -36,12 +39,8 @@ public class ReceiveMail {
     // ArrayList<EmailSocket>();
     private static ArrayList<String> listEmail = new ArrayList<>();
 
-    private static void saveData(ArrayList<HashMap<String, String>> data, String pathName, String fileName) {
-        System.out.println(data);
-        File directory = new File(pathName);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
+    private static void saveData(ArrayList<HashMap<String, String>> data, File directory, String fileName) {
+//        System.out.println(data);
 
         File file = new File(directory, fileName);
         if (!file.exists()) {
@@ -85,7 +84,7 @@ public class ReceiveMail {
         String response = "";
         writer.println("STAT");
         response = reader.readLine();
-        System.out.println(response);
+//        System.out.println(response);
     }
 
     private static ArrayList<HashMap<String, String>> getListEmails(BufferedReader reader, PrintWriter writer)
@@ -104,7 +103,27 @@ public class ReceiveMail {
             email.put("size", parts[1]);
             emailList.add(email);
         }
-        System.out.println(emailList);
+//        System.out.println(emailList);
+        return emailList;
+    }
+
+    private static ArrayList<HashMap<String, String>> getListEmailName(BufferedReader reader, PrintWriter writer)
+            throws IOException {
+        String response = "";
+        writer.println("UIDL");
+        ArrayList<HashMap<String, String>> emailList = new ArrayList<>();
+        while (!(response = reader.readLine()).equals(".")) {
+            if (response.equals("+OK")) {
+                continue;
+            }
+
+            String[] parts = response.split(" ", 2);
+            HashMap<String, String> email = new HashMap<>();
+            email.put("id", parts[0]);
+            email.put("name", parts[1]);
+            emailList.add(email);
+        }
+//        System.out.println(emailList);
         return emailList;
     }
 
@@ -127,15 +146,20 @@ public class ReceiveMail {
                 getNumberOfEmails(reader, writer);
 
                 ArrayList<HashMap<String, String>> listEmail = getListEmails(reader, writer);
+                ArrayList<HashMap<String, String>> listEmailName = getListEmailName(reader, writer);
 
-                getEmailFromServer(reader, writer, listEmail);
+                getEmailFromServer(reader, writer, listEmail, listEmailName);
 
+                writer.println("QUIT");
+                response = reader.readLine();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
         }
+
+
     }
 
     public static String generateeFileName(String dateString) {
@@ -163,11 +187,10 @@ public class ReceiveMail {
         return result;
     }
 
-    public static ArrayList<HashMap<String, String>> loadData(String pathName, String fileName) {
-        File directory = new File(pathName);
+    public static ArrayList<HashMap<String, String>> loadData(File directory, String fileName) {
         File file = new File(directory, fileName);
 
-        ArrayList<HashMap<String, String>> data = new ArrayList<HashMap<String, String>>();
+        ArrayList<HashMap<String, String>> data = new ArrayList<>();
 
         if (file.exists()) {
             try (FileReader reader = new FileReader(file)) {
@@ -187,7 +210,7 @@ public class ReceiveMail {
         return data;
     }
 
-    public static void updateStatus(File directory, String id, String status) throws IOException, ParseException {
+    public static void updateStatus(File directory, String id, String name, String status) throws IOException, ParseException {
         File file = new File(directory, "status.json");
         ArrayList<HashMap<String, String>> listStatus = new ArrayList<>();
 
@@ -215,6 +238,7 @@ public class ReceiveMail {
         HashMap<String, String> json = new HashMap<>();
 
         json.put("id", id);
+        json.put("name", name);
         json.put("status", status);
 
 
@@ -231,11 +255,10 @@ public class ReceiveMail {
         if (!isExist)
             listStatus.add(json);
 
-
-        saveData(listStatus, "Data/xuanchien@gmail.com/PROJECT", "status.json");
+        saveData(listStatus, directory, "status.json");
     }
 
-    private static void saveEmail(File directory, String fileName, String content) {
+    private static void saveEmail(File directory, String id, String fileName, String content) {
         File file = new File(directory, fileName);
         if (file.exists()) {
             return;
@@ -245,7 +268,7 @@ public class ReceiveMail {
             if (file.createNewFile()) {
                 try (PrintWriter fileWriter = new PrintWriter(file)) {
                     fileWriter.println(content);
-                    updateStatus(directory, fileName, "unRead");
+                    updateStatus(directory, id, fileName, "unRead");
                 }
             } else {
                 System.out.println("Không thể tạo file");
@@ -258,18 +281,9 @@ public class ReceiveMail {
         }
     }
 
-    private static boolean isSubMap(HashMap<String, String> subMap, HashMap<String, String> superMap) {
-        for (Map.Entry<String, String> entry : subMap.entrySet()) {
-            if (!superMap.containsKey(entry.getKey()) || !superMap.get(entry.getKey()).equals(entry.getValue())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     private static boolean isContain(HashMap<String, String> email, ArrayList<HashMap<String, String>> data) {
         for (HashMap<String, String> e : data) {
-            if (isSubMap(email, e)) {
+            if (e.get("id").equals(email.get("id"))) {
                 return true;
             }
         }
@@ -279,12 +293,20 @@ public class ReceiveMail {
     private static void getEmailFromServer(
             BufferedReader reader,
             PrintWriter writer,
-            ArrayList<HashMap<String, String>> listEmail) throws IOException {
+            ArrayList<HashMap<String, String>> listEmail,
+            ArrayList<HashMap<String, String>> listEmailName) throws IOException {
 
-        ArrayList<HashMap<String, String>> data = loadData("Data/xuanchien@gmail.com", "data.json");
+        File dir = new File("Data/" + Static.USERNAME);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        ArrayList<HashMap<String, String>> data;
+        data = loadData(dir, "data.json");
 
-        for (HashMap<String, String> email : listEmail) {
-            if (data == null || !isContain(email, data)) {
+
+        for (HashMap<String, String> email : listEmailName) {
+            if (data.isEmpty() || !isContain(email, data)) {
+//                System.out.println(email.get("id"));
                 writer.println("RETR " + email.get("id"));
                 StringBuilder emailContent = new StringBuilder();
                 String line = reader.readLine();
@@ -293,22 +315,29 @@ public class ReceiveMail {
                 }
 
                 EmailSocket emailSocket = new EmailSocket(emailContent.toString());
-                System.out.println(emailSocket.get("Date"));
-                // System.out.println(emailSocket.filter());
-                File directory = new File("Data/xuanchien@gmail.com/" + emailSocket.filter());
+                String filter = emailSocket.filter();
+                File directory = new File("Data/" + Static.USERNAME + "/" + filter);
+
                 if (!directory.exists()) {
-                    directory.mkdir();
+                    boolean result = directory.mkdir();
+//                    if (result) {
+//                        System.out.println("Tao thu muc thanh cong");
+//                    } else {
+//                        System.out.println("Tao thu muc that bai");
+//                    }
                 }
-                System.out.println(directory);
-                saveEmail(directory, generateeFileName(emailSocket.get("Date")),
-                        emailContent.toString());
+                saveEmail(directory, email.get("id"), email.get("name"), emailContent.toString());
 
                 // email.put("Status", "unRead");
                 data.add(email);
             }
         }
 
-        saveData(data, "Data/xuanchien@gmail.com", "data.json");
+        File directory = new File("Data/" + Static.USERNAME);
+        if (!directory.exists()) {
+            directory.mkdir();
+        }
+        saveData(listEmail, directory, "data.json");
     }
 
     public static void readEmail(EmailSocket email, int index) {

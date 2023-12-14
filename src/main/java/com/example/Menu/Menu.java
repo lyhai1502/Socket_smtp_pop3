@@ -12,6 +12,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.example.SendMail.SendMail;
 import com.example.Config.Static;
@@ -115,41 +118,46 @@ public class Menu {
             System.out.println("5. SPAM");
             System.out.print("Bạn muốn xem email trong folder nào: ");
             choice = scanner.nextLine();
-            switch (Integer.parseInt(choice)) {
-                case 1:
-                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/INBOX");
+            File directory;
+            switch (choice) {
+                case "1":
+                    directory = new File("Data/" + Static.USERNAME + "/INBOX");
+                    readProjectFolder(scanner, directory);
                     break;
-                case 2:
-                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/PROJECT");
+                case "2":
+                    directory = new File("Data/" + Static.USERNAME + "/PROJECT");
+                    readProjectFolder(scanner, directory);
                     break;
-                case 3:
-                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/IMPORTANT");
+                case "3":
+                    directory = new File("Data/" + Static.USERNAME + "/IMPORTANT");
+                    readProjectFolder(scanner, directory);
                     break;
-                case 4:
-                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/WORK");
+                case "4":
+                    directory = new File("Data/" + Static.USERNAME + "/WORK");
+                    readProjectFolder(scanner, directory);
                     break;
-                case 5:
-                    readProjectFolder(scanner, "Data/xuanchien@gmail.com/SPAM");
+                case "5":
+                    directory = new File("Data/" + Static.USERNAME + "/SPAM");
+                    readProjectFolder(scanner, directory);
                     break;
                 default:
+                    System.out.println("out of range");
                     break;
             }
         } while(!choice.isEmpty());
     }
 
-    private static void readProjectFolder(Scanner scanner, String path) {
+    private static void readProjectFolder(Scanner scanner, File directory) {
         String choice;
-//        scanner.nextLine();
         do {
-            ArrayList<HashMap<String, String>> listEmail = ReceiveMail.loadData(path,
+            ArrayList<HashMap<String, String>> listEmail = ReceiveMail.loadData(directory,
                     "status.json");
             ArrayList<EmailSocket> emails = new ArrayList<>();
 
-//            System.out.println(listEmail);
             int count = 1;
             for (var email : listEmail) {
 
-                EmailSocket emailSocket = new EmailSocket(path, email.get("id"));
+                EmailSocket emailSocket = new EmailSocket(directory, email.get("name"));
                 emails.add(emailSocket);
 
                 System.out.println(count++ + ". (" + email.get("status") + ") " + emailSocket.get("From") + ", "
@@ -165,9 +173,11 @@ public class Menu {
             choice = scanner.nextLine();
             if (!choice.isEmpty() && Integer.parseInt(choice) <= listEmail.size()) {
                 ReceiveMail.readEmail(emails.get(Integer.parseInt(choice) - 1), Integer.parseInt(choice));
-                File directory = new File(path);
                 try {
-                    ReceiveMail.updateStatus(directory, ReceiveMail.generateeFileName(emails.get(Integer.parseInt(choice) - 1).get("Date")), "read");
+                    ReceiveMail.updateStatus(directory,
+                            listEmail.get(Integer.parseInt(choice) - 1).get("id"),
+                            listEmail.get(Integer.parseInt(choice) - 1).get("name"),
+                            "read");
                 } catch (IOException | ParseException e) {
                     throw new RuntimeException(e);
                 }
@@ -260,6 +270,13 @@ public class Menu {
             ex.printStackTrace();
         }
 
-        ReceiveMail.getEmailFromThePOP3(enteredUsername, enteredPassword);
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.scheduleAtFixedRate(() -> {
+            try {
+                ReceiveMail.getEmailFromThePOP3(Static.USERNAME, Static.PASSWORD);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 0, Static.AUTOLOAD, TimeUnit.SECONDS);
     }
 }

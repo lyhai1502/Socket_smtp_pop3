@@ -88,9 +88,9 @@ public class EmailSocket {
         headers.put("Content", content);
     }
 
-    public EmailSocket(String path, String fileName) {
+    public EmailSocket(File directory, String fileName) {
         try {
-            String emailContent = new String(Files.readAllBytes(Paths.get(path + "/" + fileName)));
+            String emailContent = new String(Files.readAllBytes(Path.of(directory.getAbsolutePath() + "/" + fileName)));
             String[] parts = emailContent.split("\n\n", 2);
             if (parts.length < 2)
                 return;
@@ -112,23 +112,6 @@ public class EmailSocket {
             return content.toString();
         } else {
             return (String) headers.get("Content");
-        }
-    }
-
-    public void readEmail() {
-        String content = (String) headers.get("Content");
-        System.out.println(headers.get("boundary"));
-        String boundary = ((String) headers.get("boundary")).replaceAll("\"", "");
-        StringBuilder fileContent = new StringBuilder();
-        String[] lines = content.split("\n");
-        for (String line : lines) {
-            if (!line.contains(boundary)) {
-                fileContent.append(line).append("\n");
-            } else {
-                EmailSocket subEmailSocket = new EmailSocket(fileContent.toString());
-                subEmailSocket.parseFile();
-                fileContent.setLength(0);
-            }
         }
     }
 
@@ -225,10 +208,10 @@ public class EmailSocket {
                 case "Content":
                 case "From":
                 case "Subject":
-                    if (key.equals("From")) {
-                        System.out.println(headers.get(key));
-                        System.out.println(keywords);
-                    }
+//                    if (key.equals("From")) {
+////                        System.out.println(headers.get(key));
+////                        System.out.println(keywords);
+//                    }
                     for (String keyword : keywords) {
                         if (headers.get(key) != null && headers.get(key).contains(keyword)) {
                             JsonObject o = filter.get(key);
