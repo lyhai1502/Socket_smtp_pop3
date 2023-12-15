@@ -1,8 +1,22 @@
 {
-  "Username": "Quan Nguyen <ntquan@testing.com>",
-  "Password": "ahihi",
-  "MailServer": "127.0.0.1",
-  "SMTP": 2225,
-  "POP3": 3335,
-  "Autoload": 10
+  "ServerInformation": {
+    "SMTP": 2225,
+    "MailServer": "127.0.0.1",
+    "Autoload": 10,
+    "POP3": 3335
+  },
+  "Users": [
+    {
+      "Username": "lyhai1502.work@gmail.com <lyhai1502.work@gmail.com>",
+      "Password": "MTIzMTIz"
+    },
+    {
+      "Username": "lyhai1502@gmail.com <lyhai1502@gmail.com>",
+      "Password": "MTIzMTIz"
+    },
+    {
+      "Username": "xuanchien@gmail.com <xuanchien@gmail.com>",
+      "Password": "MTIzMTIz"
+    }
+  ]
 }

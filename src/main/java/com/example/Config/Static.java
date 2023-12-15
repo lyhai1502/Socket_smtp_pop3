@@ -5,13 +5,13 @@ package com.example.Config;
  */
 
 public class Static {
-    public static String SERVER = "127.0.0.1";
-    public static int STMP_PORT = 2225;
-    public static int POP3_PORT = 3335;
-    public static String PASSWORD = "123456";
-    public static String USERNAME = "Van Ly Hai";
-    public static String SENDER = "lyhai1502@gmail.com";
-    public static int AUTOLOAD = 10;
+    public static String SERVER;
+    public static int STMP_PORT;
+    public static int POP3_PORT;
+    public static String PASSWORD;
+    public static String USERNAME;
+    public static String SENDER;
+    public static int AUTOLOAD;
 
     public static String BOUNDARY = "------------" + System.currentTimeMillis();
 
