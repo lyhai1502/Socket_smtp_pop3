@@ -26,7 +26,7 @@ public class ReceiveMail {
     private static ArrayList<String> listEmail = new ArrayList<>();
 
     private static void saveData(ArrayList<HashMap<String, String>> data, File directory, String fileName) {
-//        System.out.println(data);
+        // System.out.println(data);
 
         File file = new File(directory, fileName);
         if (!file.exists()) {
@@ -70,7 +70,7 @@ public class ReceiveMail {
         String response = "";
         writer.println("STAT");
         response = reader.readLine();
-//        System.out.println(response);
+        // System.out.println(response);
     }
 
     private static ArrayList<HashMap<String, String>> getListEmails(BufferedReader reader, PrintWriter writer)
@@ -89,7 +89,7 @@ public class ReceiveMail {
             email.put("size", parts[1]);
             emailList.add(email);
         }
-//        System.out.println(emailList);
+        // System.out.println(emailList);
         return emailList;
     }
 
@@ -109,7 +109,7 @@ public class ReceiveMail {
             email.put("name", parts[1]);
             emailList.add(email);
         }
-//        System.out.println(emailList);
+        // System.out.println(emailList);
         return emailList;
     }
 
@@ -144,7 +144,6 @@ public class ReceiveMail {
             }
 
         }
-
 
     }
 
@@ -196,7 +195,8 @@ public class ReceiveMail {
         return data;
     }
 
-    public static void updateStatus(File directory, String id, String name, String status) throws IOException, ParseException {
+    public static void updateStatus(File directory, String id, String name, String status)
+            throws IOException, ParseException {
         File file = new File(directory, "status.json");
         ArrayList<HashMap<String, String>> listStatus = new ArrayList<>();
 
@@ -226,7 +226,6 @@ public class ReceiveMail {
         json.put("id", id);
         json.put("name", name);
         json.put("status", status);
-
 
         boolean isExist = false;
 
@@ -289,10 +288,9 @@ public class ReceiveMail {
         ArrayList<HashMap<String, String>> data;
         data = loadData(dir, "data.json");
 
-
         for (HashMap<String, String> email : listEmailName) {
             if (data.isEmpty() || !isContain(email, data)) {
-//                System.out.println(email.get("id"));
+                // System.out.println(email.get("id"));
                 writer.println("RETR " + email.get("id"));
                 StringBuilder emailContent = new StringBuilder();
                 String line = reader.readLine();
@@ -306,11 +304,11 @@ public class ReceiveMail {
 
                 if (!directory.exists()) {
                     boolean result = directory.mkdir();
-//                    if (result) {
-//                        System.out.println("Tao thu muc thanh cong");
-//                    } else {
-//                        System.out.println("Tao thu muc that bai");
-//                    }
+                    // if (result) {
+                    // System.out.println("Tao thu muc thanh cong");
+                    // } else {
+                    // System.out.println("Tao thu muc that bai");
+                    // }
                 }
                 saveEmail(directory, email.get("id"), email.get("name"), emailContent.toString());
 
@@ -351,7 +349,11 @@ public class ReceiveMail {
             } else if (!email.get("Content-Type").isEmpty() &&
                     email.get("Content-Type").contains("text") &&
                     !email.get("Content-Type").contains("html")) {
-                System.out.println("Noi dung cua email thu " + index + ":\n" + email.get("Content"));
+                System.out.println("Noi dung cua email thu " + index + ":");
+                if (!email.get("Cc").isEmpty()) {
+                    System.out.println("Cc: " + email.get("Cc"));
+                }
+                System.out.println(email.get("Content"));
             }
         }
     }
