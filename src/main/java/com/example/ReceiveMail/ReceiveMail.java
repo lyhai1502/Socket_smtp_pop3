@@ -365,7 +365,11 @@ public class ReceiveMail {
             } else if (!email.get("Content-Type").isEmpty() &&
                     email.get("Content-Type").contains("text") &&
                     !email.get("Content-Type").contains("html")) {
-                System.out.println("Noi dung cua email thu " + index + ":\n" + email.get("Content"));
+                System.out.println("Noi dung cua email thu " + index + ":");
+                if (!email.get("Cc").isEmpty()) {
+                    System.out.println("Cc: " + email.get("Cc"));
+                }
+                System.out.println(email.get("Content"));
             }
         }
     }
