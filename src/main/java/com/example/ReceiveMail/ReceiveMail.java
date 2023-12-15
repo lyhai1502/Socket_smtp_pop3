@@ -397,7 +397,9 @@ public class ReceiveMail {
             fos.write(decodedBytes);
 
             fos.close();
+            System.out.println("Lưu file thành công");
         } catch (IOException e) {
+            System.out.println("Lưu file thất bại");
             e.printStackTrace();
         }
     }
