@@ -1,6 +1,5 @@
 package com.example.ReceiveMail;
 
-import java.awt.desktop.AboutEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -8,12 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;

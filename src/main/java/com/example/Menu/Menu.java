@@ -28,7 +28,7 @@ public class Menu {
     public static void viewMenu() {
         Scanner scanner = new Scanner(System.in);
 
-        Login(scanner);
+        Home(scanner);
 
         // Step 3: Show menu
         int choice;
@@ -144,7 +144,7 @@ public class Menu {
                     System.out.println("out of range");
                     break;
             }
-        } while(!choice.isEmpty());
+        } while (!choice.isEmpty());
     }
 
     private static void readProjectFolder(Scanner scanner, File directory) {
@@ -182,8 +182,8 @@ public class Menu {
                     throw new RuntimeException(e);
                 }
             }
-//            scanner.nextLine();
-//            choice = scanner.nextLine();
+            // scanner.nextLine();
+            // choice = scanner.nextLine();
         } while (!choice.isEmpty());
     }
 
@@ -278,5 +278,21 @@ public class Menu {
                 e.printStackTrace();
             }
         }, 0, Static.AUTOLOAD, TimeUnit.SECONDS);
+    }
+
+    private static void Home(Scanner scanner) {
+        System.out.println("1. Đăng nhập vào hệ thống");
+        System.out.println("2. Thoát hệ thống");
+        System.out.print("Bạn chọn: ");
+
+        switch (scanner.nextLine()) {
+            case "1":
+                Login(scanner);
+                break;
+
+            default:
+                System.exit(0);
+                break;
+        }
     }
 }
