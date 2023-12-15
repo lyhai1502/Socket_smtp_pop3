@@ -232,14 +232,14 @@ public class Menu {
                 JSONObject newUser = new JSONObject();
                 newUser.put("Username", enteredUsername + " <" + enteredUsername + ">");
                 newUser.put("Password", PasswordEncoder.encodePassword(enteredPassword));
-                JSONObject mailboxes = new JSONObject();
-                mailboxes.put("INBOX", new JSONArray());
-                mailboxes.put("PROJECT", new JSONArray());
-                mailboxes.put("IMPORTANT", new JSONArray());
-                mailboxes.put("WORK", new JSONArray());
-                mailboxes.put("SPAM", new JSONArray());
+                // JSONObject mailboxes = new JSONObject();
+                // mailboxes.put("INBOX", new JSONArray());
+                // mailboxes.put("PROJECT", new JSONArray());
+                // mailboxes.put("IMPORTANT", new JSONArray());
+                // mailboxes.put("WORK", new JSONArray());
+                // mailboxes.put("SPAM", new JSONArray());
 
-                newUser.put("Mailboxes", mailboxes);
+                // newUser.put("Mailboxes", mailboxes);
 
                 // Add the new user to the users array
                 users.add(newUser);
