@@ -1,7 +1,5 @@
 package com.example.Config;
 
-import java.nio.file.Path;
-
 /**
  * Static
  */

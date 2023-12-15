@@ -1,92 +1,82 @@
 {
-    "Filters": {
-        "Content": {
-            "Keywords": [
-                "report",
-                "meeting"
-            ],
-            "Folder": "WORK"
-        },
-        "From": {
-            "Mails": [
-                "ahihi@gmail.com",
-                "ahuhu@gmail.com"
-            ],
-            "Folder": "PROJECT"
-        },
-        "Subject": {
-            "Keywords": [
-                "urgent",
-                "ASAP"
-            ],
-            "Folder": "IMPORTANT"
-        },
-        "Spam": {
-            "Keywords": [
-                "virus",
-                "hack",
-                "crack"
-            ],
-            "Folder": "SPAM"
-        }
+  "Filters": {
+    "Content": { "Keywords": ["report", "meeting"], "Folder": "WORK" },
+    "From": {
+      "Mails": ["ahihi@gmail.com", "ahuhu@gmail.com"],
+      "Folder": "PROJECT"
     },
-    "ServerInformation": {
-        "SMTP": 2225,
-        "MailServer": "127.0.0.1",
-        "Autoload": 10,
-        "POP3": 3335
+    "Subject": { "Keywords": ["urgent", "ASAP"], "Folder": "IMPORTANT" },
+    "Spam": { "Keywords": ["virus", "hack", "crack"], "Folder": "SPAM" }
+  },
+  "ServerInformation": {
+    "SMTP": 2225,
+    "MailServer": "127.0.0.1",
+    "Autoload": 10,
+    "POP3": 3335
+  },
+  "Users": [
+    {
+      "Username": "Quan Nguyen <ntquan@testing.com>",
+      "Mailboxes": {
+        "INBOX": [
+          {
+            "CC": [],
+            "Status": "Unread",
+            "Content": "Content",
+            "FROM": "example@gmail.com",
+            "TO": [],
+            "ID": "",
+            "Attachments": ["file1.txt", "file2.txt"],
+            "Subject": "Subject"
+          },
+          {}
+        ]
+      },
+      "Password": "YWhpaGk="
     },
-    "Users": [
-        {
-            "Username": "Quan Nguyen <ntquan@testing.com>",
-            "Mailboxes": {
-                "INBOX": [
-                    {
-                        "CC": [],
-                        "Status": "Unread",
-                        "Content": "Content",
-                        "FROM": "example@gmail.com",
-                        "TO": [],
-                        "ID": "",
-                        "Attachments": [
-                            "file1.txt",
-                            "file2.txt"
-                        ],
-                        "Subject": "Subject"
-                    },
-                    {}
-                ]
-            },
-            "Password": "YWhpaGk="
-        },
-        {
-            "Username": "xuanchien@gmail.com <xuanchien@gmail.com>",
-            "Mailboxes": {
-                "PROJECT": [],
-                "IMPORTANT": [],
-                "WORK": [],
-                "INBOX": [
-                    {
-                        "id": "1"
-                    },
-                    {
-                        "id": "2"
-                    }
-                ],
-                "SPAM": []
-            },
-            "Password": "MTIz"
-        },
-        {
-            "Username": "123@gmail.com <123@gmail.com>",
-            "Mailboxes": {
-                "PROJECT": [],
-                "IMPORTANT": [],
-                "WORK": [],
-                "INBOX": [],
-                "SPAM": []
-            },
-            "Password": "MTIz"
-        }
-    ]
+    {
+      "Username": "xuanchien@gmail.com <xuanchien@gmail.com>",
+      "Mailboxes": {
+        "PROJECT": [],
+        "IMPORTANT": [],
+        "WORK": [],
+        "INBOX": [{ "id": "1" }, { "id": "2" }],
+        "SPAM": []
+      },
+      "Password": "MTIz"
+    },
+    {
+      "Username": "123@gmail.com <123@gmail.com>",
+      "Mailboxes": {
+        "PROJECT": [],
+        "IMPORTANT": [],
+        "WORK": [],
+        "INBOX": [],
+        "SPAM": []
+      },
+      "Password": "MTIz"
+    },
+    {
+      "Username": "lyhai1502@gmail.com <lyhai1502@gmail.com>",
+      "Mailboxes": {
+        "PROJECT": [],
+        "IMPORTANT": [],
+        "WORK": [],
+        "INBOX": [],
+        "SPAM": []
+      },
+      "Password": "MTIzMTIz"
+    },
+    {
+      "Username": "lyhai1502.work@gmail.com <lyhai1502.work@gmail.com>",
+      "Mailboxes": {
+        "PROJECT": [],
+        "IMPORTANT": [],
+        "WORK": [],
+        "INBOX": [],
+        "SPAM": []
+      },
+      "Password": "MTIzMTIz"
+    }
+  ]
 }
